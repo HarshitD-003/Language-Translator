@@ -1,4 +1,8 @@
-/* General Page Styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
 body, html {
     margin: 0;
     padding: 0;
@@ -6,154 +10,7 @@ body, html {
     background-color: black;
     font-family: 'Poppins', sans-serif;
   }
-  
-  .app-container {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-  }
-  
-  .translate-container {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.1); /* Transparent background */
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    width: 90%;
-    max-width: 1000px;
-  }
-  
-  h2 {
-    color: white;
-    font-size: 42px;
-    margin-bottom: 30px;
-    font-weight: 600;
-  }
-  
-  /* Language Selector */
-  .language-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 30px;
-  }
-  
-  .language-selector {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  label {
-    color: white;
-    font-size: 20px;
-    margin-bottom: 10px;
-  }
-  
-  .flag-icon {
-    width: 40px;
-    height: auto;
-    margin-bottom: 10px;
-  }
-  
-  p {
-    color: white;
-    font-size: 18px;
-  }
-  
-  /* Swap Button */
-  .swap-btn {
-    background-color: #007BFF;
-    color: white;
-    font-size: 24px;
-    border: none;
-    border-radius: 50%;
-    padding: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .swap-btn:hover {
-    background-color: #0056b3;
-  }
-  
-  /* Input/Output Areas */
-  .input-output-container {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 30px;
-  }
-  
-  .input-box, .output-box {
-    flex: 1;
-  }
-  
-  textarea {
-    width: 100%;
-    height: 250px;
-    padding: 15px;
-    background-color: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 12px;
-    color: white;
-    font-size: 18px;
-    resize: none;
-  }
-  
-  textarea::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-  }
-  
-  /* Button */
-  .translate-btn {
-    padding: 14px 30px;
-    border: none;
-    border-radius: 12px;
-    background-color: #28a745;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .translate-btn:hover {
-    background-color: #218838;
-  }
-  
-  /* History Section */
-  .history-container {
-    text-align: left;
-    margin-top: 30px;
-  }
-  
-  .history-container h3 {
-    color: white;
-    font-size: 24px;
-    margin-bottom: 20px;
-  }
-  
-  .history-container ul {
-    list-style: none;
-    padding: 0;
-    color: white;
-  }
-  
-  .history-container li {
-    margin-bottom: 10px;
-    padding: 10px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-  }
-  /* Basic setup to center the form */
+
 body, html {
     margin: 0;
     padding: 0;
