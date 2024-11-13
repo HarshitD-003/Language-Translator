@@ -1,106 +1,268 @@
 import React, { useState } from 'react';
+import { ArrowLeftRight, Clipboard } from 'lucide-react';
 
-function Translator() {
-  const [inputText, setInputText] = useState('');
-  const [outputText, setOutputText] = useState('');
-  const [history, setHistory] = useState([]);
-  const [languages, setLanguages] = useState({
-    from: 'English',
-    to: 'Hindi',
-  });
+const Translate = () => {
+    const [sourceLang, setSourceLang] = useState('auto');
+    const [targetLang, setTargetLang] = useState('en');
+    const [text, setText] = useState('');
+    const [translatedText, setTranslatedText] = useState('');
+    const [error, setError] = useState('');
+    var apiKey = import.meta.env.VITE_API_KEY;
 
-  const handleTranslate = () => {
-    const translatedText = `Translation of "${inputText}" in ${languages.to}...`;
-    setOutputText(translatedText);
+    const handleSwapLanguages = () => {
+        setSourceLang(targetLang);
+        setTargetLang(sourceLang);
+    };
 
-    // Update history
-    setHistory([...history, { input: inputText, output: translatedText }]);
-  };
+    const handleDetectLanguage = async () => {
+        setError('');
 
-  const handleSwapLanguages = () => {
-    setLanguages((prevLanguages) => ({
-      from: prevLanguages.to,
-      to: prevLanguages.from,
-    }));
-  };
+        if (!text.trim()) return;
 
-  return (
-    <div className="translator-page">
-      <div className="translator-container glass-effect">
-        <h2 className="translator-title">Language Translator</h2>
-        
-        {/* Language Selection */}
-        <div className="language-selection">
-          <div className="language-from">
-            <img
-              src="https://flagcdn.com/40x30/gb.png"
-              alt="English Flag"
-              className="flag-icon"
-            />
-            <p>From</p>
-            <p className="language-name">{languages.from}</p>
-          </div>
-          <div className="language-swap">
-            <button className="swap-btn" onClick={handleSwapLanguages}>⇆</button>
-          </div>
-          <div className="language-to">
-            <img
-              src="https://flagcdn.com/40x30/in.png"
-              alt="India Flag"
-              className="flag-icon"
-            />
-            <p>To</p>
-            <p className="language-name">{languages.to}</p>
-          </div>
+        const myHeaders = new Headers();
+        myHeaders.append('apikey', apiKey);
+
+        const requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: text,
+            redirect: 'follow',
+        };
+
+        try {
+            const response = await fetch(
+                'https://api.apilayer.com/language_translation/identify',
+                requestOptions
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const detectedLanguage = result.languages[0]?.language;
+            if (detectedLanguage) {
+                setSourceLang(detectedLanguage);
+            } else {
+                setError('Could not detect language.');
+            }
+        } catch (error) {
+            console.error('Error during language detection:', error);
+            setError('Failed to detect language. Please try again.');
+        }
+    };
+
+    const handleVoiceInput = () => {
+        const recognition = new (window.webkitSpeechRecognition ||
+            window.SpeechRecognition)();
+        recognition.lang = sourceLang;
+        recognition.interimResults = false;
+
+        recognition.onresult = (event) => {
+            const speechText = event.results[0][0].transcript;
+            setText(speechText);
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Error in speech recognition:', event.error);
+        };
+
+        recognition.start();
+    };
+
+    const handleImageUpload = async (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            console.log('Image uploaded:', file);
+            setText('OCR result text goes here');
+        }
+    };
+
+    const handleTranslate = async () => {
+        setError('');
+        setTranslatedText('');
+
+        const myHeaders = new Headers();
+        myHeaders.append('apikey', apiKey);
+
+        // const raw = `body=${text}&target=${targetLang}&source=${sourceLang}`;
+        const raw=text;
+        const requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow',
+        };
+
+        try {
+            const response = await fetch(
+                `https://api.apilayer.com/language_translation/translate?target=${targetLang} `,
+                requestOptions
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            setTranslatedText(result.translations[0]?.translation || '');
+        } catch (error) {
+            console.error('Error during translation:', error);
+            setError('Failed to translate text. Please try again.');
+        }
+    };
+
+    const handleTextToSpeech = () => {
+        const utterance = new SpeechSynthesisUtterance(translatedText);
+        utterance.lang = targetLang;
+        speechSynthesis.speak(utterance);
+    };
+
+    const handleCopyToClipboard = () => {
+        navigator.clipboard
+            .writeText(translatedText)
+            .then(() => {
+                alert('Text copied to clipboard!');
+            })
+            .catch((err) => {
+                console.error('Failed to copy text: ', err);
+            });
+    };
+
+    return (
+        <div className="flex flex-col items-center p-6 h-screen">
+            <div className="w-full bg-gray-800 p-6 rounded-lg shadow-md">
+                <h1 className="text-2xl font-bold text-white mb-6 text-center">
+                    Language Translator
+                </h1>
+
+                <div className="flex flex-row items-center justify-center my-8 space-x-4">
+                    <div className="flex flex-col">
+                        <select
+                            value={sourceLang}
+                            onChange={(e) => setSourceLang(e.target.value)}
+                            className="p-2 border border-gray-600 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="auto">Detect Language</option>
+                            <option value="en">English</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                            <option value="de">German</option>
+                            <option value="it">Italian</option>
+                            <option value="pt">Portuguese</option>
+                            <option value="zh">Chinese</option>
+                            <option value="ja">Japanese</option>
+                            <option value="ko">Korean</option>
+                            <option value="ru">Russian</option>
+                            <option value="ar">Arabic</option>
+                            <option value="hi">Hindi</option>
+                            <option value="bn">Bengali</option>
+                            <option value="tr">Turkish</option>
+                            <option value="vi">Vietnamese</option>
+                        </select>
+                    </div>
+
+                    <button
+                        onClick={handleSwapLanguages}
+                        className="bg-gray-700 text-white p-2 rounded-full hover:bg-gray-600 transition focus:outline-none focus:ring-2 focus:ring-blue-500 flex my-auto"
+                        aria-label="Swap Languages"
+                    >
+                        <ArrowLeftRight />
+                    </button>
+
+                    <div className="flex flex-col">
+                        <select
+                            value={targetLang}
+                            onChange={(e) => setTargetLang(e.target.value)}
+                            className="p-2 border border-gray-600 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="en">English</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                            <option value="de">German</option>
+                            <option value="it">Italian</option>
+                            <option value="pt">Portuguese</option>
+                            <option value="zh">Chinese</option>
+                            <option value="ja">Japanese</option>
+                            <option value="ko">Korean</option>
+                            <option value="ru">Russian</option>
+                            <option value="ar">Arabic</option>
+                            <option value="hi">Hindi</option>
+                            <option value="bn">Bengali</option>
+                            <option value="tr">Turkish</option>
+                            <option value="vi">Vietnamese</option>
+                        </select>
+                    </div>
+                </div>
+
+                <textarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    onBlur={handleDetectLanguage}
+                    placeholder="Enter text or use voice input"
+                    rows="4"
+                    className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-white placeholder-gray-400 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+
+                <div className="flex space-x-4 mb-4">
+                    <button
+                        onClick={handleVoiceInput}
+                        className="w-full bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700 transition"
+                    >
+                        Use Microphone
+                    </button>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        id="image-upload"
+                    />
+                    <label
+                        htmlFor="image-upload"
+                        className="w-full bg-blue-600 text-white text-center font-semibold py-2 rounded hover:bg-blue-700 transition"
+                    >
+                        Upload Image
+                    </label>
+                </div>
+
+                <button
+                    onClick={handleTranslate}
+                    className="w-full bg-green-600 text-white font-semibold py-2 rounded mb-4 hover:bg-green-700 transition"
+                >
+                    Translate
+                </button>
+
+                {error && (
+                    <div className="text-red-500 text-center mb-4">{error}</div>
+                )}
+
+                <div className="relative mb-4">
+                    <textarea
+                        value={translatedText}
+                        readOnly
+                        placeholder="Translation"
+                        rows="4"
+                        className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-white placeholder-gray-400 focus:outline-none"
+                    />
+                    <button
+                        onClick={handleCopyToClipboard}
+                        className="absolute right-2 top-2 p-2 bg-gray-600 text-white rounded-full hover:bg-gray-500"
+                        aria-label="Copy to Clipboard"
+                    >
+                        <Clipboard />
+                    </button>
+                </div>
+
+                <button
+                    onClick={handleTextToSpeech}
+                    className="w-full bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700 transition text-center"
+                >
+                    Listen to Translation
+                </button>
+            </div>
         </div>
+    );
+};
 
-        {/* Input and Output */}
-        <div className="input-output-container">
-          <div className="input-section">
-            <label>Input ({languages.from})</label>
-            <textarea
-              placeholder={`Type your text in ${languages.from}...`}
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              className="text-area"
-            />
-          </div>
-
-          <div className="output-section">
-            <label>Output ({languages.to})</label>
-            <textarea
-              placeholder={`Translation will appear here in ${languages.to}...`}
-              value={outputText}
-              readOnly
-              className="text-area"
-            />
-          </div>
-        </div>
-
-        {/* Translate Button */}
-        <button onClick={handleTranslate} className="translate-btn">
-          Translate
-        </button>
-
-        {/* Translation History */}
-        <div className="translation-history">
-          <h3>Translation History</h3>
-          <ul>
-            {history.length > 0 ? (
-              history.map((item, index) => (
-                <li key={index}>
-                  <strong>Input:</strong> {item.input} <br />
-                  <strong>Output:</strong> {item.output}
-                </li>
-              ))
-            ) : (
-              <p>No history available yet.</p>
-            )}
-          </ul>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default Translator;
+export default Translate;

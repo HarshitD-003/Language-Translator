@@ -4,6 +4,8 @@ import Login from './components/Login';
 import SignUp from './components/SignUp';
 import Translate from './components/Translate';
 import ParticlesBackground from './components/ParticlesBackground';  // Import ParticlesBackground
+import './index.css';
+
 
 function App() {
   return (
