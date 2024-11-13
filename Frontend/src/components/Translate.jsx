@@ -6,18 +6,55 @@ const Translate = () => {
     const [targetLang, setTargetLang] = useState('en');
     const [text, setText] = useState('');
     const [translatedText, setTranslatedText] = useState('');
+    const [error, setError] = useState('');
+    var apiKey = import.meta.env.VITE_API_KEY;
 
-    // Swap source and target languages
     const handleSwapLanguages = () => {
         setSourceLang(targetLang);
         setTargetLang(sourceLang);
     };
 
-    // Speech Recognition for Voice to Text
+    const handleDetectLanguage = async () => {
+        setError('');
+
+        if (!text.trim()) return;
+
+        const myHeaders = new Headers();
+        myHeaders.append('apikey', apiKey);
+
+        const requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: text,
+            redirect: 'follow',
+        };
+
+        try {
+            const response = await fetch(
+                'https://api.apilayer.com/language_translation/identify',
+                requestOptions
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const detectedLanguage = result.languages[0]?.language;
+            if (detectedLanguage) {
+                setSourceLang(detectedLanguage);
+            } else {
+                setError('Could not detect language.');
+            }
+        } catch (error) {
+            console.error('Error during language detection:', error);
+            setError('Failed to detect language. Please try again.');
+        }
+    };
+
     const handleVoiceInput = () => {
-        const recognition =
-            new window.webkitSpeechRecognition() ||
-            new window.SpeechRecognition();
+        const recognition = new (window.webkitSpeechRecognition ||
+            window.SpeechRecognition)();
         recognition.lang = sourceLang;
         recognition.interimResults = false;
 
@@ -33,48 +70,73 @@ const Translate = () => {
         recognition.start();
     };
 
-    // Image to Text (OCR) - Placeholder for actual OCR logic
     const handleImageUpload = async (event) => {
         const file = event.target.files[0];
         if (file) {
-            // TODO: Implement OCR logic using Tesseract.js or a cloud OCR API like Google Vision
             console.log('Image uploaded:', file);
-            setText("OCR result text goes here"); // Placeholder text
+            setText('OCR result text goes here');
         }
     };
 
-    // Text Translation (Placeholder for actual API call)
     const handleTranslate = async () => {
-        setTranslatedText(`Translated text in ${targetLang}`);
+        setError('');
+        setTranslatedText('');
+
+        const myHeaders = new Headers();
+        myHeaders.append('apikey', apiKey);
+
+        // const raw = `body=${text}&target=${targetLang}&source=${sourceLang}`;
+        const raw=text;
+        const requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow',
+        };
+
+        try {
+            const response = await fetch(
+                `https://api.apilayer.com/language_translation/translate?target=${targetLang} `,
+                requestOptions
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            setTranslatedText(result.translations[0]?.translation || '');
+        } catch (error) {
+            console.error('Error during translation:', error);
+            setError('Failed to translate text. Please try again.');
+        }
     };
 
-    // Text-to-Speech for translated text
     const handleTextToSpeech = () => {
         const utterance = new SpeechSynthesisUtterance(translatedText);
         utterance.lang = targetLang;
         speechSynthesis.speak(utterance);
     };
 
-    // Copy translated text to clipboard
     const handleCopyToClipboard = () => {
-        navigator.clipboard.writeText(translatedText)
+        navigator.clipboard
+            .writeText(translatedText)
             .then(() => {
                 alert('Text copied to clipboard!');
             })
-            .catch(err => {
+            .catch((err) => {
                 console.error('Failed to copy text: ', err);
             });
     };
 
     return (
-        <div className="flex flex-col items-center p-6  h-screen  ">
-            <div className="w-full  bg-gray-800 p-6 rounded-lg shadow-md">
+        <div className="flex flex-col items-center p-6 h-screen">
+            <div className="w-full bg-gray-800 p-6 rounded-lg shadow-md">
                 <h1 className="text-2xl font-bold text-white mb-6 text-center">
                     Language Translator
                 </h1>
 
-                {/* Language selection with swap button */}
-                <div className="flex flex-row items-center align-middle justify-center my-8 space-x-4">
+                <div className="flex flex-row items-center justify-center my-8 space-x-4">
                     <div className="flex flex-col">
                         <select
                             value={sourceLang}
@@ -97,14 +159,12 @@ const Translate = () => {
                             <option value="bn">Bengali</option>
                             <option value="tr">Turkish</option>
                             <option value="vi">Vietnamese</option>
-                            {/* Add more languages if needed */}
                         </select>
                     </div>
 
-                    {/* Swap button */}
                     <button
                         onClick={handleSwapLanguages}
-                        className="bg-gray-700 text-white p-2 rounded-full hover:bg-gray-600 transition focus:outline-none focus:ring-2 focus:ring-blue-500 flex my-auto align-middle"
+                        className="bg-gray-700 text-white p-2 rounded-full hover:bg-gray-600 transition focus:outline-none focus:ring-2 focus:ring-blue-500 flex my-auto"
                         aria-label="Swap Languages"
                     >
                         <ArrowLeftRight />
@@ -131,21 +191,19 @@ const Translate = () => {
                             <option value="bn">Bengali</option>
                             <option value="tr">Turkish</option>
                             <option value="vi">Vietnamese</option>
-                            {/* Add more languages if needed */}
                         </select>
                     </div>
                 </div>
 
-                {/* Text input area */}
                 <textarea
                     value={text}
                     onChange={(e) => setText(e.target.value)}
+                    onBlur={handleDetectLanguage}
                     placeholder="Enter text or use voice input"
                     rows="4"
                     className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-white placeholder-gray-400 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
 
-                {/* Voice input and image upload buttons */}
                 <div className="flex space-x-4 mb-4">
                     <button
                         onClick={handleVoiceInput}
@@ -168,7 +226,6 @@ const Translate = () => {
                     </label>
                 </div>
 
-                {/* Translation button */}
                 <button
                     onClick={handleTranslate}
                     className="w-full bg-green-600 text-white font-semibold py-2 rounded mb-4 hover:bg-green-700 transition"
@@ -176,7 +233,10 @@ const Translate = () => {
                     Translate
                 </button>
 
-                {/* Translated text display with Copy to Clipboard button */}
+                {error && (
+                    <div className="text-red-500 text-center mb-4">{error}</div>
+                )}
+
                 <div className="relative mb-4">
                     <textarea
                         value={translatedText}
@@ -194,7 +254,6 @@ const Translate = () => {
                     </button>
                 </div>
 
-                {/* Text-to-Speech button */}
                 <button
                     onClick={handleTextToSpeech}
                     className="w-full bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700 transition text-center"
