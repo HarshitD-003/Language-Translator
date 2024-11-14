@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ArrowLeftRight, Clipboard } from 'lucide-react';
 
 const Translate = () => {
@@ -72,11 +72,32 @@ const Translate = () => {
 
     const handleImageUpload = async (event) => {
         const file = event.target.files[0];
-        if (file) {
-            console.log('Image uploaded:', file);
-            setText('OCR result text goes here');
+        if (!file) return;
+    
+        setError('');
+        setText('');
+    
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+    
+            const response = await fetch('/upload-image', {
+                method: 'POST',
+                body: formData,
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to upload image');
+            }
+    
+            const data = await response.json();
+            setText(data.text);
+        } catch (error) {
+            console.error('Error during image upload:', error);
+            setError('Failed to extract text from the image. Please try again.');
         }
     };
+    
 
     const handleTranslate = async () => {
         setError('');
@@ -86,7 +107,7 @@ const Translate = () => {
         myHeaders.append('apikey', apiKey);
 
         // const raw = `body=${text}&target=${targetLang}&source=${sourceLang}`;
-        const raw=text;
+        const raw = text;
         const requestOptions = {
             method: 'POST',
             headers: myHeaders,
