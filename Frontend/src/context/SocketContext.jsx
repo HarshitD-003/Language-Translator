@@ -1,42 +1,41 @@
-// import { createContext, useContext, useEffect, useState } from "react";
-// // import { useAuthContext } from "./AuthContext";
-// import io from "socket.io-client"
+import { createContext, useContext, useEffect, useState } from "react";
+// import { useAuthContext } from "./AuthContext";
+import io from "socket.io-client";
+import { useAuthContext } from "./AuthContext";
 
+export const SocketContext = createContext();
 
-// export const SocketContext=createContext();
+export const useSocketContext = () => {
+  return useContext(SocketContext);
+};
 
-// export const useSocketContext=()=>{
-//     return useContext(SocketContext);
-// }
+export const SocketContextProvider = ({ children }) => {
+  const [socket, setSocket] = useState();
+  const { authUser } = useAuthContext();
+  const { startGame } = useAuthContext();
 
+  useEffect(() => {
+    if (authUser && startGame) {
+      const socket = io("http://localhost:8001");
+      setSocket(socket);
+      // console.log("start");
 
-// export const SocketContextProvider=({children})=>{
-//     const [socket,setSocket]=useState();
-//     // const [onlineUser,setOnlineUser]=useState([])
-//     // const {authUser}=useAuthContext();
+      socket.on("connect", () => {
+        console.log("Connected to server:", socket.id);
+      });
 
-//     useEffect(()=>{
-//         // if(authUser){
-//             const socket=io("http://localhost:8000"
-//                 // , {
-//                 //     transports: ["websocket"],
-//                 // }
-//             );
-//             setSocket(socket);
-            
-//             // socket.on('getOnlineUsers',(users)=>{
-//             //     console.log("online");
-//             //        setOnlineUser(users); 
-//             // })
+      socket.on("disconnect", () => {
+        console.log("Disconnected from server");
+      });
+      // console.log(socket);
 
-//             return ()=>socket.close();
-//         // } else{
-//         //     if(socket){
-//         //         socket.close();
-//         //         setSocket(null);
-//         //     }
-//         // }
-//     },[])
+      return () => socket.close();
+    }
+  }, [authUser,startGame]);
 
-//     return <SocketContext.Provider value={{socket}}>{children}</SocketContext.Provider>
-// }
+  return (
+    <SocketContext.Provider value={{ socket }}>
+      {children}
+    </SocketContext.Provider>
+  );
+};

@@ -2,17 +2,15 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ParticlesBackground from './ParticlesBackground'; // Assuming you have this component
 
-function Login() {
+function Login({onLogin}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Email:', email, 'Password:', password);
-
-    // Navigate to the Translate page after login
-    navigate('/translate');
+    onLogin(email,password)
+    // navigate('/translate');
   };
 
   return (
@@ -22,11 +20,11 @@ function Login() {
         <h2>Login</h2>
         <form onSubmit={handleSubmit} className="login-form">
           <div className="input-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Username</label>
             <input
               id="email"
-              name="email"
-              type="email"
+              name="username"
+              type="text"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
