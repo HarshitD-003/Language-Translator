@@ -17,9 +17,9 @@ app.use(
         credentials: true,
     })
 );
+app.use(express.json());
 
 const upload = multer({ dest: 'uploads/' });
-console.log(process.env.API_KEY);
 const fileManager = new GoogleAIFileManager(process.env.API_KEY);
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
@@ -68,6 +68,30 @@ app.post('/upload-image', upload.single('image'), async (req, res) => {
     } catch (error) {
         console.error('Error processing image:', error);
         res.status(500).json({ error: 'Failed to process the image' });
+    }
+});
+
+app.post('/translate', async (req, res) => {
+    try {
+        if (!req.body.text || !req.body.sourceLang || !req.body.targetLang) {
+            return res
+                .status(400)
+                .json({ error: 'Missing text or language data' });
+        }
+
+        const sourceLang = req.body.sourceLang;
+        const targetLang = req.body.targetLang;
+        const text = req.body.text;
+
+        const translationResult = await model.generateContent([
+            `Translate this text from ${sourceLang} to ${targetLang}: "${text}"`,
+        ]);
+        const translatedText = translationResult.response.text();
+
+        res.json({ translatedText });
+    } catch (error) {
+        console.error('Error translating text:', error);
+        res.status(500).json({ error: 'Failed to translate the text' });
     }
 });
 
