@@ -131,6 +131,24 @@ const Translate = () => {
             const result = await response.json();
             if (result.translatedText) {
                 setTranslatedText(result.translatedText);
+                const history =
+                    JSON.parse(localStorage.getItem('history')) || [];
+                const currentTime = new Date();
+                const formattedTimestamp = `${currentTime.getDate()}/${
+                    currentTime.getMonth() + 1
+                } ${currentTime.getHours()}:${currentTime.getMinutes()} ${
+                    currentTime.getHours() >= 12 ? 'PM' : 'AM'
+                }`;
+
+                history.push({
+                    sourceLang: sourceLang,
+                    targetLang: targetLang,
+                    sourceContent: text,
+                    outputContent: result.translatedText,
+                    timestamp: formattedTimestamp,
+                });
+
+                localStorage.setItem('history', JSON.stringify(history));
             } else {
                 throw new Error('Translation result is missing.');
             }

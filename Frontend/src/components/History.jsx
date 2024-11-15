@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react';
+
 const History = () => {
-    // Sample dummy data
-    const historyData = [
+    // Initialize historyData with sample dummy data
+    const [historyData, setHistoryData] = useState([
         {
             sourceLang: 'English',
             targetLang: 'Spanish',
@@ -64,10 +66,37 @@ const History = () => {
             outputContent: 'Olá',
             timestamp: '10/11 6:10 PM',
         },
-    ];
+    ]);
+    const languageMap = {
+        en: 'English',
+        es: 'Spanish',
+        fr: 'French',
+        de: 'German',
+        it: 'Italian',
+        pt: 'Portuguese',
+        zh: 'Chinese',
+        ja: 'Japanese',
+        ko: 'Korean',
+        ru: 'Russian',
+        ar: 'Arabic',
+        hi: 'Hindi',
+        bn: 'Bengali',
+        tr: 'Turkish',
+        vi: 'Vietnamese',
+    };
+
+    useEffect(() => {
+        const history = JSON.parse(localStorage.getItem('history')) || [];
+        const updatedHistory = history.map((entry) => ({
+            ...entry,
+            sourceLang: languageMap[entry.sourceLang] || entry.sourceLang,
+            targetLang: languageMap[entry.targetLang] || entry.targetLang,
+        }));
+        setHistoryData((prevData) => [...prevData, ...updatedHistory]);
+    }, []);
 
     return (
-        <div className="p-6 bg-gray-900 min-h-screen text-white">
+        <div className="p-6 bg-gray-900 min-h-screen text-white mt-64">
             <h1 className="text-3xl font-bold text-center mb-8">
                 Translation History
             </h1>
