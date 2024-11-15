@@ -73,31 +73,37 @@ const Translate = () => {
     const handleImageUpload = async (event) => {
         const file = event.target.files[0];
         if (!file) return;
-    
+
         setError('');
         setText('');
-    
+        setTranslatedText('');
+
         try {
             const formData = new FormData();
             formData.append('image', file);
-    
-            const response = await fetch('/upload-image', {
+            formData.append('sourceLang', sourceLang); // Source language
+            formData.append('targetLang', targetLang); // Target language
+
+            // Send a single request to the backend
+            const response = await fetch('http://localhost:8001/upload-image', {
                 method: 'POST',
                 body: formData,
             });
-    
+
             if (!response.ok) {
-                throw new Error('Failed to upload image');
+                throw new Error('Failed to process the image');
             }
-    
+
             const data = await response.json();
-            setText(data.text);
+
+            // Set both extracted text and translated text
+            setText(data.extractedText);
+            setTranslatedText(data.translatedText);
         } catch (error) {
-            console.error('Error during image upload:', error);
-            setError('Failed to extract text from the image. Please try again.');
+            console.error('Error during image upload and processing:', error);
+            setError('Failed to process the image. Please try again.');
         }
     };
-    
 
     const handleTranslate = async () => {
         setError('');
