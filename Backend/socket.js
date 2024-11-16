@@ -3,6 +3,7 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const axios = require("axios");
+require("dotenv").config();
 
 const app = express();
 const server = http.createServer(app);
@@ -27,10 +28,28 @@ let gameState = {
 // Function to get a random word and its translation from Gemni API
 async function getWordFromGemniAPI() {
     try {
-        const response = await axios.get("https://api.gemni.com/randomWord");
+        const response = await axios.get("https://ap-south-1.aws.data.mongodb-api.com/app/revtrance-hcgmauq/endpoint/hindi/randomword");
+        const payload = {
+            text: response.data.word,
+            sourceLang: 'hi',
+            targetLang: 'en',
+        };
+        const responsex = await fetch('http://localhost:8001/translate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+        if (!responsex.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const resultx = await responsex.json();
+        console.log("Fetched word:", response.data.word);
+        console.log("Translation:", resultx.translatedText);
         return {
-            hindiWord: response.data.hindiWord,
-            englishTranslation: response.data.englishTranslation,
+            hindiWord: response.data.word,
+            englishTranslation: resultx.translatedText,
         };
     } catch (error) {
         console.error("Error fetching word:", error.message);
@@ -38,6 +57,7 @@ async function getWordFromGemniAPI() {
     }
 }
 
+const x=getWordFromGemniAPI();
 // Initialize a new round
 async function startNewRound() {
     gameState.currentRound += 1;
