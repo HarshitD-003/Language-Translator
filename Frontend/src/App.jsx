@@ -14,6 +14,7 @@ import History from './components/History';
 // import { Routes, Route, Navigate, useActionData } from "react-router-dom";
 import Game from './components/Game';
 import { useAuthContext } from './context/AuthContext';
+import Home from './components/Home';
 
 function App() {
     // const [authUser, setauthUser] = useState(false);
@@ -67,6 +68,7 @@ function App() {
                             )
                         }
                     />
+                    <Route path="/home" element={<Home />} />
                     <Route path="/signup" element={<SignUp />} />
                     <Route
                         path="/translate"
