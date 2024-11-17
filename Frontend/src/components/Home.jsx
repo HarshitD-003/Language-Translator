@@ -1,54 +1,22 @@
-import { useEffect, useState } from "react";
-import Particles from "react-tsparticles";
-import { loadFull } from "tsparticles";
-
-// Import icons from react-icons
-import { FaHistory, FaBook, FaChartBar, FaUser } from 'react-icons/fa';
+import { useEffect, useState, useRef } from "react";
+import ParticlesBackground from "./ParticlesBackground";
+import { FaHistory, FaBook, FaChartBar, FaUser } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import Navbar from "./Navbar";
 
 const Home = () => {
   const [currentQuote, setCurrentQuote] = useState(0);
+  const intervalRef = useRef(null);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const loadParticles = async () => {
-      await loadFull();
-    };
-    loadParticles();
-
-    // Rotate quotes every 3 seconds
-    const interval = setInterval(() => {
-      setCurrentQuote((prev) => (prev + 1) % quotes.length);
-    }, 3000);
-
-    return () => clearInterval(interval); // Cleanup interval on unmount
-  }, []);
-
-  const particlesOptions = {
-    background: {
-      color: "#0f0f0f",
-    },
-    particles: {
-      number: { value: 80 },
-      color: { value: "#00FFFF" },
-      shape: { type: "circle" },
-      opacity: { value: 0.5 },
-      size: { value: 3 },
-      move: { enable: true, speed: 2 },
-    },
-    interactivity: {
-      events: {
-        onHover: { enable: true, mode: "repulse" },
-        onClick: { enable: true, mode: "push" },
-      },
-    },
-  };
-
+  // Updated quotes
   const quotes = [
-    "Translation bridges cultures, connecting people across borders.",
-    "Languages are threads that weave the fabric of human connection.",
-    "Every translation is a bridge to greater understanding between people."
+    "The oldest language known to the world is Tamil, still thriving in its rich literary tradition.",
+    "Mandarin is widely regarded as the hardest language to master, with its intricate tones and characters.",
+    "Hindi holds the title as the most spoken language in India, connecting millions across the nation."
   ];
+  
 
-  // Icons mapped to the respective sections
   const cardIcons = {
     History: <FaHistory size={30} />,
     Resources: <FaBook size={30} />,
@@ -56,20 +24,37 @@ const Home = () => {
     Profile: <FaUser size={30} />,
   };
 
+  const cardColors = {
+    History: "from-green-500 to-purple-500",
+    Resources: "from-red-500 to-green-500",
+    "Lang Stats": "from-green-500 to-indigo-800",
+    Profile: "from-pink-500 to-cyan-500",
+  };
+
+  useEffect(() => {
+    // Set interval for rotating quotes
+    intervalRef.current = setInterval(() => {
+      setCurrentQuote((prev) => (prev + 1) % quotes.length);
+    }, 3000);
+
+    // Cleanup on unmount
+    return () => clearInterval(intervalRef.current);
+  }, [quotes.length]);
+
   return (
     <div className="h-screen w-screen relative">
-      {/* Particle.js Background */}
-      <Particles options={particlesOptions} className="absolute inset-0" />
+      {/* Navbar */}
+      <Navbar />
 
       {/* Main Content */}
       <div className="flex flex-col sm:flex-row h-full">
         {/* Left Panel */}
         <div className="w-full sm:w-1/2 flex flex-col justify-center items-center p-8">
-          <h1 className="text-6xl font-extrabold text-cyan-300 mb-32 tracking-wide text-center drop-shadow-lg border-neutral-50">
-            Language Translator
+          <h1 className="text-5xl font-extrabold text-cyan-300 mb-16 tracking-wide text-center drop-shadow-lg border-neutral-50">
+            Welcome, <span className="text-yellow-400">User Name</span>
           </h1>
 
-          {/* Carousel */}
+          {/* Quotes Carousel */}
           <div className="w-4/5 overflow-hidden relative mb-8 bg-gray-800 bg-opacity-50 p-4 rounded-lg">
             <div className="text-white text-xl font-semibold">
               <p className="text-center py-4 text-orange-700">
@@ -78,13 +63,23 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Navigate to Translate */}
-          <button
-            onClick={() => (window.location.href = "/translate")}
-            className="px-6 py-4 text-lg font-semibold text-white bg-cyan-600 rounded-lg hover:bg-cyan-500 transition-all duration-500 shadow-xl transform hover:scale-110 text-black"
-          >
-            Translate Now!
-          </button>
+          {/* Buttons */}
+          <div className="flex gap-6">
+            <button
+              onClick={() => navigate("/translate")}
+              className="px-6 py-4 text-lg font-semibold text-white bg-cyan-600 rounded-lg hover:bg-cyan-500 transition-all duration-500 shadow-xl transform hover:scale-110 text-black"
+              aria-label="Navigate to Translate"
+            >
+              Translate Now!
+            </button>
+            <button
+              onClick={() => navigate("/game")}
+              className="px-6 py-4 text-lg font-semibold text-white bg-gradient-to-br from-yellow-500 to-red-500 rounded-lg hover:bg-cyan-500 transition-all duration-500 shadow-xl transform hover:scale-110 text-black"
+              aria-label="Navigate to Play and Learn"
+            >
+              Play And Learn!
+            </button>
+          </div>
         </div>
 
         {/* Right Panel */}
@@ -92,14 +87,16 @@ const Home = () => {
           {["History", "Resources", "Lang Stats", "Profile"].map((name) => (
             <div
               key={name}
-              onClick={() => (window.location.href = `/${name.toLowerCase()}`)}
-              className="w-full h-40 bg-gray-700 border border-cyan-500 flex justify-center items-center text-white text-xl font-bold rounded-lg transition-all duration-300 transform hover:scale-110 hover:shadow-[0_0_20px_5px_cyan] cursor-pointer relative"
+              role="button"
+              aria-label={`Navigate to ${name}`}
+              tabIndex={0}
+              onClick={() => navigate(`/${name.toLowerCase()}`)}
+              className={`w-full h-40 bg-gradient-to-br ${
+                cardColors[name]
+              } border border-cyan-500 flex justify-center items-center text-white text-xl font-bold rounded-lg transition-all duration-300 transform hover:scale-110 hover:shadow-[0_0_20px_5px_cyan] cursor-pointer relative`}
             >
-              {/* Add icon to each card */}
-              <div className="text-cyan-500 mr-2">
-                {cardIcons[name]} {/* Render corresponding icon */}
-              </div>
-              {name}
+              <div className="text-cyan-500 mr-2">{cardIcons[name]}</div>
+              <span>{name}</span>
             </div>
           ))}
         </div>

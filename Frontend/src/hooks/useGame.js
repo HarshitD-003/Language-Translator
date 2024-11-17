@@ -34,6 +34,7 @@ const useGame = () => {
         // Store both Hindi and English words in local storage
         localStorage.setItem("hindiWord", data.hindiWord);
         localStorage.setItem("englishTranslation", data.englishTranslation);
+        console.log(data.englishTranslation);
       });
 
       socket.on("roundEnd", (data) => {

@@ -25,31 +25,47 @@ let gameState = {
     timer: null,
 };
 
-// Function to get a random word and its translation from Gemni API
-async function getWordFromGemniAPI() {
+const hindiWords = [
+    { hindi: "पुस्तक", english: "Book" },
+    { hindi: "मेज़", english: "Table" },
+    { hindi: "कुर्सी", english: "Chair" },
+    { hindi: "पानी", english: "Water" },
+    { hindi: "सूरज", english: "Sun" },
+    { hindi: "चाँद", english: "Moon" },
+    { hindi: "पेड़", english: "Tree" },
+    { hindi: "आसमान", english: "Sky" },
+    { hindi: "समुद्र", english: "Ocean" },
+    { hindi: "घड़ी", english: "Clock" },
+    { hindi: "खिड़की", english: "Window" },
+    { hindi: "दरवाज़ा", english: "Door" },
+    { hindi: "गाड़ी", english: "Car" },
+    { hindi: "पक्षी", english: "Bird" },
+    { hindi: "बिल्ली", english: "Cat" },
+    { hindi: "कुत्ता", english: "Dog" },
+    { hindi: "गुलाब", english: "Rose" },
+    { hindi: "फूल", english: "Flower" },
+    { hindi: "झील", english: "Lake" },
+    { hindi: "पहाड़", english: "Mountain" },
+    { hindi: "सड़क", english: "Road" },
+    { hindi: "घर", english: "House" },
+    { hindi: "किताब", english: "Book" },
+    { hindi: "आम", english: "Mango" },
+    { hindi: "सपना", english: "Dream" },
+    { hindi: "खुशी", english: "Happiness" },
+    { hindi: "दुख", english: "Sadness" },
+    { hindi: "शांत", english: "Calm" },
+    { hindi: "प्रेम", english: "Love" },
+    { hindi: "दोस्त", english: "Friend" },
+  ];
+
+// Function to get a random word and its translation
+function getWord() {
     try {
-        const response = await axios.get("https://ap-south-1.aws.data.mongodb-api.com/app/revtrance-hcgmauq/endpoint/hindi/randomword");
-        const payload = {
-            text: response.data.word,
-            sourceLang: 'hi',
-            targetLang: 'en',
-        };
-        const responsex = await fetch('http://localhost:8001/translate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-        });
-        if (!responsex.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const resultx = await responsex.json();
-        console.log("Fetched word:", response.data.word);
-        console.log("Translation:", resultx.translatedText);
+        const response = hindiWords[Math.floor(Math.random() * hindiWords.length)];
+        console.log("Fetched word:", response);
         return {
-            hindiWord: response.data.word,
-            englishTranslation: resultx.translatedText,
+            hindiWord: response.hindi,
+            englishTranslation: response.english,
         };
     } catch (error) {
         console.error("Error fetching word:", error.message);
@@ -57,7 +73,6 @@ async function getWordFromGemniAPI() {
     }
 }
 
-const x=getWordFromGemniAPI();
 // Initialize a new round
 async function startNewRound() {
     gameState.currentRound += 1;
@@ -68,11 +83,12 @@ async function startNewRound() {
     }
 
     gameState.roundActive = true;
-    gameState.wordData = await getWordFromGemniAPI();
+    gameState.wordData = getWord();
 
     io.emit("newRound", {
         round: gameState.currentRound,
         hindiWord: gameState.wordData.hindiWord,
+        englishTranslation: gameState.wordData.englishTranslation,
     });
 
     gameState.timer = setTimeout(() => {
