@@ -9,6 +9,8 @@ import SignUp from './components/SignUp';
 import Translate from './components/Translate';
 import ParticlesBackground from './components/ParticlesBackground'; // Import ParticlesBackground
 import './index.css';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import History from './components/History';
 
 // import { Routes, Route, Navigate, useActionData } from "react-router-dom";
