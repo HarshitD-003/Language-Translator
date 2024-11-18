@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Slider from "react-slick"; // Import react-slick
@@ -28,14 +27,14 @@ const Home = () => {
   const cardIcons = {
     History: <FaHistory size={30} />,
     Resources: <FaBook size={30} />,
-    "Lang Stats": <FaChartBar size={30} />,
+    "Stats": <FaChartBar size={30} />,
     Profile: <FaUser size={30} />,
   };
 
   const cardColors = {
     History: "from-rose-900 to-yellow-700",
     Resources: "from-rose-900 to-emerald-700",
-    "Lang Stats": "from-gray-600 to-indigo-600",
+    "Stats": "from-gray-600 to-indigo-600",
     Profile: "from-pink-600 to-red-600",
   };
 
@@ -84,7 +83,7 @@ const Home = () => {
 
         {/* Right Panel */}
         <div className="w-full h-full md:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-6 p-24">
-          {["History", "Resources", "Lang Stats", "Profile"].map((name) => (
+          {["History", "Resources", "Stats", "Profile"].map((name) => (
             <div
               key={name}
               role="button"

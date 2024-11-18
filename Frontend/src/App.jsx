@@ -9,14 +9,15 @@ import SignUp from './components/SignUp';
 import Translate from './components/Translate';
 import ParticlesBackground from './components/ParticlesBackground'; // Import ParticlesBackground
 import './index.css';
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 import History from './components/History';
 
 // import { Routes, Route, Navigate, useActionData } from "react-router-dom";
 import Game from './components/Game';
 import { useAuthContext } from './context/AuthContext';
 import Home from './components/Home';
+import Stats from './components/Stats';
 
 function App() {
     // const [authUser, setauthUser] = useState(false);
@@ -64,7 +65,7 @@ function App() {
                         path="/"
                         element={
                             authUser ? (
-                                <Navigate to="/translate" />
+                                <Navigate to="/home" />
                             ) : (
                                 <Login onLogin={handleLogin} />
                             )
@@ -83,6 +84,10 @@ function App() {
                     <Route
                         path="/history"
                         element={authUser ? <History /> : <Navigate to="/" />}
+                    />
+                    <Route
+                        path="/stats"
+                        element={authUser ? <Stats /> : <Navigate to="/" />}
                     />
                 </Routes>
             </div>
