@@ -1,5 +1,4 @@
 import {
-    // BrowserRouter as Router,
     Routes,
     Route,
     Navigate,
@@ -12,15 +11,13 @@ import './index.css';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import History from './components/History';
-
-// import { Routes, Route, Navigate, useActionData } from "react-router-dom";
 import Game from './components/Game';
 import { useAuthContext } from './context/AuthContext';
 import Home from './components/Home';
 import Stats from './components/Stats';
+import Resources from './components/Resources'; // Import Resources component
 
 function App() {
-    // const [authUser, setauthUser] = useState(false);
     const { setAuthUser } = useAuthContext();
     const { authUser } = useAuthContext();
 
@@ -38,10 +35,8 @@ function App() {
                 JSON.stringify({ username, password })
             );
             setAuthUser({ username, password });
-            // setauthUser(true);
         } else {
             alert('wrong credentials');
-            // setauthUser(false);
         }
     };
 
@@ -61,6 +56,7 @@ function App() {
                 }}
             >
                 <Routes>
+                    {/* Login Route */}
                     <Route
                         path="/"
                         element={
@@ -71,8 +67,16 @@ function App() {
                             )
                         }
                     />
-                    <Route path="/home" element={<Home />} />
-                    <Route path="/signup" element={<SignUp />} />
+
+                    {/* Authenticated Routes */}
+                    <Route
+                        path="/home"
+                        element={authUser ? <Home /> : <Navigate to="/" />}
+                    />
+                    <Route
+                        path="/signup"
+                        element={!authUser ? <SignUp /> : <Navigate to="/home" />}
+                    />
                     <Route
                         path="/translate"
                         element={authUser ? <Translate /> : <Navigate to="/" />}
@@ -88,6 +92,12 @@ function App() {
                     <Route
                         path="/stats"
                         element={authUser ? <Stats /> : <Navigate to="/" />}
+                    />
+
+                    {/* Resources Page */}
+                    <Route
+                        path="/resources"
+                        element={authUser ? <Resources /> : <Navigate to="/" />}
                     />
                 </Routes>
             </div>

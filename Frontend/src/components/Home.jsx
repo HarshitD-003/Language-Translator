@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Slider from "react-slick"; // Import react-slick
 import { FaHistory, FaBook, FaChartBar, FaUser } from "react-icons/fa";
+import Chatbot from "./Chatbot";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -89,7 +90,11 @@ const Home = () => {
               role="button"
               aria-label={`Navigate to ${name}`}
               tabIndex={0}
-              onClick={() => navigate(`/${name.toLowerCase()}`)}
+              onClick={() =>
+                name === "Resources" // Specific check for Resources
+                  ? navigate("/resources") // Navigate to resources.jsx
+                  : navigate(`/${name.toLowerCase()}`) // Default behavior for other cards
+              }
               className={`w-full h-40 bg-gradient-to-br ${cardColors[name]} border border-cyan-500 flex justify-center items-center text-white text-xl font-bold rounded-lg transition-all duration-300 transform hover:scale-110 hover:shadow-[0_0_20px_5px_cyan] cursor-pointer relative`}
             >
               <div className="text-cyan-500 mr-2">{cardIcons[name]}</div>
@@ -98,6 +103,8 @@ const Home = () => {
           ))}
         </div>
       </div>
+      {/* Chatbot Component */}
+      <Chatbot initialMessage="Welcome to the Home page! Let me guide you through our features." />
     </div>
   );
 };
