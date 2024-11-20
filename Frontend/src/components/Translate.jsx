@@ -16,6 +16,44 @@ const Translate = () => {
         setText(translatedText);
     };
 
+    const handleDetectLanguage = async () => {
+        setError('');
+
+        if (!text.trim()) return;
+
+        const myHeaders = new Headers();
+        myHeaders.append('apikey', apiKey);
+
+        const requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: text,
+            redirect: 'follow',
+        };
+
+        try {
+            const response = await fetch(
+                'https://api.apilayer.com/language_translation/identify',
+                requestOptions
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const detectedLanguage = result.languages[0]?.language;
+            if (detectedLanguage) {
+                setSourceLang(detectedLanguage);
+            } else {
+                setError('Could not detect language.');
+            }
+        } catch (error) {
+            console.error('Error during language detection:', error);
+            setError('Failed to detect language. Please try again.');
+        }
+    };
+
     const handleVoiceInput = () => {
         const recognition = new (window.webkitSpeechRecognition ||
             window.SpeechRecognition)();
@@ -32,6 +70,39 @@ const Translate = () => {
         };
 
         recognition.start();
+    };
+
+    const handleImageUpload = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        setError('');
+        setText('');
+        setTranslatedText('');
+
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('sourceLang', sourceLang);
+            formData.append('targetLang', targetLang);
+
+            const response = await fetch('http://localhost:8001/upload-image', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to process the image');
+            }
+
+            const data = await response.json();
+
+            setText(data.extractedText);
+            setTranslatedText(data.translatedText);
+        } catch (error) {
+            console.error('Error during image upload and processing:', error);
+            setError('Failed to process the image. Please try again.');
+        }
     };
 
     const handleTranslate = async () => {
@@ -60,6 +131,24 @@ const Translate = () => {
             const result = await response.json();
             if (result.translatedText) {
                 setTranslatedText(result.translatedText);
+                const history =
+                    JSON.parse(localStorage.getItem('history')) || [];
+                const currentTime = new Date();
+                const formattedTimestamp = `${currentTime.getDate()}/${
+                    currentTime.getMonth() + 1
+                } ${currentTime.getHours()}:${currentTime.getMinutes()} ${
+                    currentTime.getHours() >= 12 ? 'PM' : 'AM'
+                }`;
+
+                history.push({
+                    sourceLang: sourceLang,
+                    targetLang: targetLang,
+                    sourceContent: text,
+                    outputContent: result.translatedText,
+                    timestamp: formattedTimestamp,
+                });
+
+                localStorage.setItem('history', JSON.stringify(history));
             } else {
                 throw new Error('Translation result is missing.');
             }
@@ -175,6 +264,7 @@ const Translate = () => {
                             accept="image/*"
                             className="hidden"
                             id="image-upload"
+                            onChange={handleImageUpload}
                         />
                         <label
                             htmlFor="image-upload"
@@ -190,6 +280,7 @@ const Translate = () => {
                     {/* Text Input Area */}
                     <textarea
                         value={text}
+                        onBlur={handleDetectLanguage}
                         onChange={(e) => setText(e.target.value)}
                         placeholder="Enter text or use voice input"
                         rows="6"

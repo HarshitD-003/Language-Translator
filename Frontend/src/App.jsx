@@ -1,8 +1,4 @@
-import {
-    Routes,
-    Route,
-    Navigate,
-} from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
 import Translate from './components/Translate';
@@ -16,6 +12,7 @@ import { useAuthContext } from './context/AuthContext';
 import Home from './components/Home';
 import Stats from './components/Stats';
 import Resources from './components/Resources'; // Import Resources component
+import Profile from './components/Profile';
 
 function App() {
     const { setAuthUser } = useAuthContext();
@@ -75,7 +72,9 @@ function App() {
                     />
                     <Route
                         path="/signup"
-                        element={!authUser ? <SignUp /> : <Navigate to="/home" />}
+                        element={
+                            !authUser ? <SignUp /> : <Navigate to="/home" />
+                        }
                     />
                     <Route
                         path="/translate"
@@ -92,6 +91,10 @@ function App() {
                     <Route
                         path="/stats"
                         element={authUser ? <Stats /> : <Navigate to="/" />}
+                    />
+                    <Route
+                        path="/profile"
+                        element={authUser ? <Profile /> : <Navigate to="/" />}
                     />
 
                     {/* Resources Page */}
