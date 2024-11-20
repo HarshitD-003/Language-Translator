@@ -39,6 +39,16 @@ const Home = () => {
     Profile: "from-pink-600 to-red-600",
   };
 
+  const userString = localStorage.getItem("chat-user");
+  let user;
+  if (userString) {
+    user = JSON.parse(userString);
+    user.username = user.username.charAt(0).toUpperCase() + user.username.slice(1);
+    console.log(user.username);
+  } else {
+    console.log("N");
+  }
+
   return (
     <div className="h-screen w-screen relative">
       {/* Navbar */}
@@ -49,7 +59,7 @@ const Home = () => {
         {/* Left Panel */}
         <div className="w-full sm:w-1/2 flex flex-col justify-center items-center p-8">
           <h1 className="text-5xl font-extrabold text-cyan-300 mb-16 tracking-wide text-center drop-shadow-lg border-neutral-50">
-            Welcome, <span className="text-yellow-400">User Name</span>
+            Welcome, <span className="text-yellow-400">{userString?user.username:'User Name'}</span>
           </h1>
 
           {/* Quotes Carousel */}

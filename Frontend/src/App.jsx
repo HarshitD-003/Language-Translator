@@ -23,9 +23,12 @@ function App() {
         const pass1 = 'asdf';
         const user2 = 'yash';
         const pass2 = 'qwer';
+        const user3 = 'harshit';
+        const pass3 = '1234';
         if (
             (username === user1 && password === pass1) ||
-            (username === user2 && password === pass2)
+            (username === user2 && password === pass2) ||
+            (username === user3 && password === pass3)
         ) {
             localStorage.setItem(
                 'chat-user',

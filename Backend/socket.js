@@ -19,7 +19,7 @@ let gameState = {
     players: {},
     currentRound: 0,
     totalRounds: 10,
-    roundTime: 60000, // 1 minute in milliseconds
+    roundTime: 10000, // 1 minute in milliseconds
     wordData: null,
     roundActive: false,
     timer: null,
@@ -102,14 +102,20 @@ function endRound(reason) {
     clearTimeout(gameState.timer);
 
     if (reason === "correctAnswer") {
-        io.emit("roundEnd", { reason: "A player submitted the correct answer!" });
-    } else if (reason === "timeout") {
-        io.emit("roundEnd", { reason: "Time ran out!" });
-    }
-
-    setTimeout(() => {
+        //io.emit("roundEnd", { reason: "A player submitted the correct answer!" });
         startNewRound();
-    }, 3000);
+        return;
+    } else if (reason === "timeout") {
+        //io.emit("roundEnd", { reason: "Time ran out!" });
+        startNewRound();
+    }
+    else
+    {
+        startNewRound();
+    }
+    // setTimeout(() => {
+    //     startNewRound();
+    // }, 10000);
 }
 
 // Reset the game state
@@ -118,7 +124,7 @@ function resetGame() {
         players: {},
         currentRound: 0,
         totalRounds: 10,
-        roundTime: 60000,
+        roundTime: 10000,
         wordData: null,
         roundActive: false,
         timer: null,
@@ -142,8 +148,9 @@ io.on("connection", (socket) => {
     }
 
     socket.on("submitAnswer", (answer) => {
-        if (gameState.roundActive && answer === gameState.wordData.englishTranslation) {
+        if (gameState.roundActive && answer === gameState.wordData.englishTranslation.toLowerCase()) {
             gameState.players[socket.id].score += 1;
+            socket.broadcast.emit("roundEnd", { reason: "A player submitted the correct answer!" });
             endRound("correctAnswer");
         }
     });

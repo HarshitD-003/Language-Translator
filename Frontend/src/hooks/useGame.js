@@ -1,6 +1,8 @@
 // hooks/useGame.js
 import { useState, useEffect } from "react";
 import { useSocketContext } from "../context/SocketContext";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useGame = () => {
   const { socket } = useSocketContext();
@@ -11,6 +13,27 @@ const useGame = () => {
   const [hindiWord, setHindiWord] = useState("");
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState("");
+  const [timer, setTimer] = useState(10);
+  const [points, setPoints] = useState(0);
+
+  useEffect(() => {
+    let timerInterval;
+
+    if (gameStarted) {
+      setTimer(10); // Reset timer to 60 seconds for each round
+      timerInterval = setInterval(() => {
+        setTimer((prev) => {
+          if (prev > 1) return prev - 1;
+          clearInterval(timerInterval);
+          socket.emit("timeUp"); // Emit event when time runs out
+          toast.warning("Time's up! Moving to the next round.");
+          return 0;
+        });
+      }, 1000);
+    }
+
+    return () => clearInterval(timerInterval);
+  }, [gameStarted, roundNumber, socket]);
 
   useEffect(() => {
     if (socket) {
@@ -23,7 +46,6 @@ const useGame = () => {
       });
 
       socket.on("gameStart", () => {
-        console.log("inside");
         setStatusMessage("");
         setGameStarted(true);
       });
@@ -31,14 +53,13 @@ const useGame = () => {
       socket.on("newRound", (data) => {
         setRoundNumber(data.round);
         setHindiWord(data.hindiWord);
-        // Store both Hindi and English words in local storage
         localStorage.setItem("hindiWord", data.hindiWord);
         localStorage.setItem("englishTranslation", data.englishTranslation);
-        console.log(data.englishTranslation);
+        //toast.info("New round started!");
       });
 
       socket.on("roundEnd", (data) => {
-        alert(data.reason); // Notify why the round ended
+        toast.error(data.reason); // Notify why the round ended
       });
 
       socket.on("gameOver", (message) => {
@@ -56,10 +77,13 @@ const useGame = () => {
     const correctTranslation = localStorage
       .getItem("englishTranslation")
       .toLowerCase();
+
     if (answer.trim().toLowerCase() === correctTranslation) {
+      toast.success("Correct Answer!");
+      setPoints((prevPoints) => prevPoints + 10);
       socket.emit("submitAnswer", answer);
     } else {
-      alert("Incorrect! Try again.");
+      toast.error(`Incorrect! Correct answer: ${correctTranslation}`);
     }
   };
 
@@ -69,6 +93,8 @@ const useGame = () => {
     hindiWord,
     gameStarted,
     gameOverMessage,
+    timer,
+    points,
     submitAnswer,
   };
 };
