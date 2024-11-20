@@ -3,11 +3,11 @@ import React, { useState } from "react";
 const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: "John Doe",
-    email: "johndoe@example.com",
-    phone: "+1 234 567 890",
-    bio: "Enthusiastic developer with a passion for building impactful applications.",
-    location: "San Francisco, CA",
+    name: "Krishna",
+    email: "krishna5@gmail.com",
+    phone: "8953265785",
+    bio: "Software Developer",
+    location: "Jaipur",
   });
 
   const [editData, setEditData] = useState(profileData);
@@ -22,8 +22,8 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-200 flex justify-center items-center p-6">
-      <div className="w-full max-w-3xl bg-gray-800 shadow-lg rounded-lg p-8">
+    <div className="w-screen bg-gray-900 text-gray-200 flex justify-center items-center p-6">
+      <div className="w-full max-w-2xl bg-gray-800 shadow-lg rounded-lg p-8">
         <h2 className="text-3xl font-bold text-gray-100 mb-6 text-center border-b border-gray-700 pb-4">
           Profile
         </h2>
@@ -37,10 +37,13 @@ const Profile = () => {
                 name="name"
                 value={editData.name}
                 onChange={handleInputChange}
+                placeholder="Enter your name"
                 className="w-full p-3 rounded-md bg-gray-700 text-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
               />
             ) : (
-              <p className="p-3 bg-gray-700 rounded-md">{profileData.name}</p>
+              <p className="p-3 bg-gray-700 rounded-md">
+                {profileData.name || "Not provided"}
+              </p>
             )}
           </div>
 
@@ -53,10 +56,13 @@ const Profile = () => {
                 name="email"
                 value={editData.email}
                 onChange={handleInputChange}
+                placeholder="Enter your email"
                 className="w-full p-3 rounded-md bg-gray-700 text-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
               />
             ) : (
-              <p className="p-3 bg-gray-700 rounded-md">{profileData.email}</p>
+              <p className="p-3 bg-gray-700 rounded-md">
+                {profileData.email || "Not provided"}
+              </p>
             )}
           </div>
 
@@ -69,10 +75,13 @@ const Profile = () => {
                 name="phone"
                 value={editData.phone}
                 onChange={handleInputChange}
+                placeholder="Enter your phone number"
                 className="w-full p-3 rounded-md bg-gray-700 text-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
               />
             ) : (
-              <p className="p-3 bg-gray-700 rounded-md">{profileData.phone}</p>
+              <p className="p-3 bg-gray-700 rounded-md">
+                {profileData.phone || "Not provided"}
+              </p>
             )}
           </div>
 
@@ -85,10 +94,13 @@ const Profile = () => {
                 name="location"
                 value={editData.location}
                 onChange={handleInputChange}
+                placeholder="Enter your location"
                 className="w-full p-3 rounded-md bg-gray-700 text-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
               />
             ) : (
-              <p className="p-3 bg-gray-700 rounded-md">{profileData.location}</p>
+              <p className="p-3 bg-gray-700 rounded-md">
+                {profileData.location || "Not provided"}
+              </p>
             )}
           </div>
 
@@ -100,11 +112,14 @@ const Profile = () => {
                 name="bio"
                 value={editData.bio}
                 onChange={handleInputChange}
+                placeholder="Enter a short bio about yourself"
                 className="w-full p-3 rounded-md bg-gray-700 text-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
                 rows={4}
               ></textarea>
             ) : (
-              <p className="p-3 bg-gray-700 rounded-md">{profileData.bio}</p>
+              <p className="p-3 bg-gray-700 rounded-md">
+                {profileData.bio || "Not provided"}
+              </p>
             )}
           </div>
 
